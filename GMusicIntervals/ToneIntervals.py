@@ -1,5 +1,5 @@
 """
-Module ToneIntervals
+This module defines basic tone intervals and some functions which can operate on them.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -10,6 +10,7 @@ import collections
 
 
 class GToneInterval:
+    """Defines names and values for different note intervals."""
     # Interval definitions
     PerfectUnison =  0
     Root          =  0
@@ -79,18 +80,25 @@ INTERVAL_SHORT_NAMES = {GToneInterval.R:    "R",
                         GToneInterval.P11:  "P11",
                         GToneInterval.M13:  "M13"
                         }
+"""Directory defining translation from interval values to strings that represents the abbreviation of the intervals."""
 
 
 def normalizeIntervals(intervals: list[int]) -> list[int]:
+    """Normalizes a list of note intervals to be in the range Root (0) to Major7th (11)."""
+    
     normalized_set = {v % GToneInterval.Octave for v in intervals}
     return list(normalized_set)
 
 
 def transposeIntervals(intervals: list[int], steps: int) -> list[int]:
+    """Transposes the given interval values a number of semi tone steps"""
+
     return [value + steps for value in intervals if (value + steps) >= 0]
 
 
-def multiplyIntervals(intervals: list[int], number_of_octaves) -> list[int]:
+def multiplyIntervals(intervals: list[int], number_of_octaves: int) -> list[int]:
+    """Transposes the given interval a number of full octaves (12 semi tones)."""
+
     result = list()
     for i in range(number_of_octaves):
         offset = i * GToneInterval.Octave
@@ -98,7 +106,17 @@ def multiplyIntervals(intervals: list[int], number_of_octaves) -> list[int]:
     return result
 
 
-def intervalSignature(interval: list[int]) -> int:        
+def intervalSignature(interval: list[int]) -> int:
+    """Translates a list of tone intervals to an interger number which is unique for the normalized interval.
+
+    Each bit in the signature represents a note in the normalized (see normalizeIntervals) interval:
+        0: note not present
+        1: note present
+    
+    Returns:
+        A normalzed interval signature number between 0 and 4095 (2^12 - 1).
+    """
+
     signature = 0
     mask = 1
     
@@ -109,6 +127,15 @@ def intervalSignature(interval: list[int]) -> int:
 
 
 def nearSignatures(signature: int, distance: int) -> list[int]:
+    """Finds normalized interval signatures which are close to a given signature
+    
+    Args:
+        signature: The target signature (see intervalSignature).
+        distance: The function will return signatures which are at this distance from the target signature.
+          The distance is defined as number of notes which differs from the target signature.
+    
+    """
+
     near_signatures = []
 
     if distance < 0:

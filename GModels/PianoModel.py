@@ -70,7 +70,7 @@ class GPianoKeyState:
     def setCurrentScale(self, scale: GScale, show: bool, base_value: int):        
 
         if (show):
-            self.key_in_scale_name = scale.relativeNoteName(self.key_value, base_value)
+            self.key_in_scale_name = scale.relativeNoteName(self.key_value)
             self.is_in_current_scale = scale.noteValueBelongsToScale(self.key_value)
         else:
             self.is_in_current_scale = True

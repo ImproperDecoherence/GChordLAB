@@ -8,7 +8,7 @@ from .ToneIntervals import (GToneInterval,
 
 from .Notes import (sortNoteNames, noteName, noteValue, noteValuesToNoteNames, isDiatonicNoteName,
                     noteToNoteValue, removeOctaveFromNoteName, listOfNoteNames, noteNameStyle,
-                    noteNamesToNoteValues, NoteNames, fitNoteNamesToInterval, isDiatonicNoteValue,
+                    noteNamesToNoteValues, NoteNames, isDiatonicNoteValue,
                     rebaseNoteValues, noteNamesToNoteValues)
 
 from .Chords import (GChordModifier, GChordFlags, GDynamicChordTemplate, 
