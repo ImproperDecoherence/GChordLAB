@@ -97,22 +97,22 @@ class GChordFinderWidget(QGroupBox):
         self.source_box.setContentsMargins(0, 6, 0, 0)
         source_layout = QHBoxLayout()
 
-        source_button_names = {GChordFinder.SourceType.Instrument: "Instrument", GChordFinder.SourceType.Seed: "Seed"}
+        source_button_names = {GChordFinder.SeedType.Instrument: "Instrument", GChordFinder.SeedType.Chord: "Seed"}
 
         self.source_button_group = QButtonGroup()
         self.source_button_group.setExclusive(True)
 
-        source_instrument_button = QRadioButton(source_button_names[GChordFinder.SourceType.Instrument])
+        source_instrument_button = QRadioButton(source_button_names[GChordFinder.SeedType.Instrument])
         source_layout.addWidget(source_instrument_button)
         self.source_button_group.addButton(source_instrument_button)
-        self.source_button_group.setId(source_instrument_button, GChordFinder.SourceType.Instrument)
+        self.source_button_group.setId(source_instrument_button, GChordFinder.SeedType.Instrument)
 
-        source_seed_button = QRadioButton(source_button_names[GChordFinder.SourceType.Seed])
+        source_seed_button = QRadioButton(source_button_names[GChordFinder.SeedType.Chord])
         source_layout.addWidget(source_seed_button)
         self.source_button_group.addButton(source_seed_button)
-        self.source_button_group.setId(source_seed_button, GChordFinder.SourceType.Seed)
+        self.source_button_group.setId(source_seed_button, GChordFinder.SeedType.Chord)
 
-        self.source_button_group.button(self.chord_finder.currentSource()).setChecked(True)
+        self.source_button_group.button(self.chord_finder.currentSeedType()).setChecked(True)
         self.source_button_group.buttonToggled.connect(self._sourceToggled)
 
         self.source_box.setLayout(source_layout)
@@ -159,7 +159,7 @@ class GChordFinderWidget(QGroupBox):
     def _sourceToggled(self, button: QRadioButton, checked: bool):
         id = self.source_button_group.id(button)
         if checked:
-            self.chord_finder.setSource(id)
+            self.chord_finder.setSeedType(id)
 
 
     def _seedChordChanged(self, chord_button: GChordButton):

@@ -251,8 +251,7 @@ class GPianoWidget(QWidget):
         super().mouseReleaseEvent(event)
 
         
-    def _keyUpdateEvent(self, key_state: GPianoKeyState):
-        print(key_state)
+    def _keyUpdateEvent(self, key_state: GPianoKeyState):        
         self.update()
 
 
