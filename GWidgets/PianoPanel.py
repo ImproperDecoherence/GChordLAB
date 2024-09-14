@@ -73,13 +73,8 @@ class GPianoPanel(QGroupBox):
 
         base_note_label = QLabel("Base Note:")
         control_layout.addWidget(base_note_label)
-        self.base_note_indicator = QLabel(noteName(self.piano_model.baseNoteValue()))
-        control_layout.addWidget(self.base_note_indicator)
-
-        # chord_gravity_label = QLabel("Chord CoG:")
-        # control_layout.addWidget(chord_gravity_label)
-        # self.chord_gravity_indicator = QLabel(noteName(self.piano_model.cogNoteValue()))
-        # control_layout.addWidget(self.chord_gravity_indicator)
+        self.base_note_indicator = QLabel(noteName(self.piano_model.firstNoteValue()))
+        control_layout.addWidget(self.base_note_indicator)        
         
         control_widget.setLayout(control_layout)
         main_layout.addWidget(control_widget)
@@ -90,26 +85,19 @@ class GPianoPanel(QGroupBox):
         self.setLayout(main_layout)    
 
         self.piano_model.keyLayoutChanged.connect(self._keyLayoutChanged)
-        self.piano_model.cogChanged.connect(self._cogChanged)
-
         self.player.instrumentChanged.connect(self._playerInstrumentChanged)
 
 
     def _availableFirstNotes(self):
         available_notes = self.player.supportedNoteNames()
-        number_keys = self.piano_model.numberOfKeys()
+        number_keys = self.piano_model.numberOfPianoKeys()
 
         return [note for note in available_notes[:-number_keys] if (isDiatonicNoteName(note) and (('C' in note) or ('F' in  note)))]
 
 
     def _keyLayoutChanged(self, piano_model: GPianoModel):
-        self.base_note_indicator.setText(noteName(piano_model.baseNoteValue()))
-
-
-    def _cogChanged(self, piano_model: GPianoModel):
-        pass
-        # self.chord_gravity_indicator.setText(noteName(piano_model.cogNoteValue()))
-
+        self.base_note_indicator.setText(noteName(piano_model.firstNoteValue()))
+    
 
     def _firstKeyNoteChanged(self, note_name):
         if len(note_name) > 0:

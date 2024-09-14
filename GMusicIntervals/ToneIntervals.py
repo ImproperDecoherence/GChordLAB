@@ -85,21 +85,19 @@ INTERVAL_SHORT_NAMES = {GToneInterval.R:    "R",
 
 def normalizeIntervals(intervals: list[int]) -> list[int]:
     """Normalizes a list of note intervals to be in the range Root (0) to Major7th (11)."""
-    
     normalized_set = {v % GToneInterval.Octave for v in intervals}
     return list(normalized_set)
 
 
 def transposeIntervals(intervals: list[int], steps: int) -> list[int]:
     """Transposes the given interval values a number of semi tone steps"""
-
     return [value + steps for value in intervals if (value + steps) >= 0]
 
 
 def multiplyIntervals(intervals: list[int], number_of_octaves: int) -> list[int]:
     """Transposes the given interval a number of full octaves (12 semi tones)."""
-
     result = list()
+
     for i in range(number_of_octaves):
         offset = i * GToneInterval.Octave
         result.extend([value + offset for value in intervals])
@@ -116,7 +114,6 @@ def intervalSignature(interval: list[int]) -> int:
     Returns:
         A normalzed interval signature number between 0 and 4095 (2^12 - 1).
     """
-
     signature = 0
     mask = 1
     
@@ -135,7 +132,6 @@ def nearSignatures(signature: int, distance: int) -> list[int]:
           The distance is defined as number of notes which differs from the target signature.
     
     """
-
     near_signatures = []
 
     if distance < 0:

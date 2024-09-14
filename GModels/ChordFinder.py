@@ -21,17 +21,20 @@ class GChordFinder:
         Instrument = 1
         Seed = 2
 
+
     class _ChordListModel(QAbstractListModel):
 
-        def __init__(self, chords: list[GDynamicChord]):
+        def __init__(self, chords: list[GDynamicChord]) -> None:
             super().__init__()
             self.chords = chords
 
-        def data(self, index, role):            
+
+        def data(self, index, role) -> GDynamicChord:
                 if role == Qt.ItemDataRole.DisplayRole:
                     return self.chords[index.row()]
                 
-        def rowCount(self, index):
+
+        def rowCount(self, index) -> int:
             return len(self.chords)
 
 
@@ -45,7 +48,7 @@ class GChordFinder:
         self.chord_database = GChordDatabase(number_mod_combinations=2)
         
         self.chord_generators = {g.name(): g for g in [GMatchingChordsGenerator(self.chord_database),
-                                                     GChordsOfScaleGenerator()]}
+                                                       GChordsOfScaleGenerator()]}
         
         print(self.chord_generators)
 
@@ -75,7 +78,7 @@ class GChordFinder:
         return len(self.found_chords)
 
 
-    def setCurrentGenerator(self, generator_name: str):
+    def setCurrentGenerator(self, generator_name: str) -> None:
        self.current_generator = self.chord_generators[generator_name]
        self.updateChords()
 

@@ -91,7 +91,7 @@ class GPianoWidget(QWidget):
 
         number_rect = QRect(rect)
         number_rect.adjust(0, rect.height() - round(1.50 * white_key_width), 0, 0)
-        painter.drawText(number_rect, Qt.AlignmentFlag.AlignCenter, key_state.key_in_scale_name)
+        painter.drawText(number_rect, Qt.AlignmentFlag.AlignCenter, key_state.keyInScaleName())
 
         name_rect = QRect(rect)
         name_rect.adjust(0, rect.height() - round(0.75 * white_key_width), 0, 0)
@@ -252,6 +252,7 @@ class GPianoWidget(QWidget):
 
         
     def _keyUpdateEvent(self, key_state: GPianoKeyState):
+        print(key_state)
         self.update()
 
 

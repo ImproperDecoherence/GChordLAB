@@ -21,7 +21,6 @@ class GSignal:
 
     def __init__(self) -> None:
         """Creates a signal without connections."""
-
         self.targets = []
         self.signals = []
 
@@ -38,7 +37,6 @@ class GSignal:
               the corresponding 'emit' call.
         
         """
-
         self.targets.append(target)
 
 
@@ -51,7 +49,6 @@ class GSignal:
         Args:
             signal: Reference to GSignal.
         """
-
         self.signals.append(signal)
 
 

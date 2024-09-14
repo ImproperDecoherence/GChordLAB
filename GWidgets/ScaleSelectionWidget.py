@@ -35,15 +35,13 @@ class GScaleSelectionWidget(QGroupBox):
         scale_selection_layout = QHBoxLayout()
 
         self.key_combo_box = QComboBox()
-        self.key_combo_box.setModel(self.scale_model.key_model)
-        self.key_combo_box.currentTextChanged.connect(self.scale_model.currentKeyChanged)
-        self.scale_model.currentKeyUpdated.connect(self._currentKeyModelUpated)
+        self.key_combo_box.setModel(self.scale_model.key_model)        
+        self.key_combo_box.currentTextChanged.connect(self._keyUpdated)        
         scale_selection_layout.addWidget(self.key_combo_box)
 
         self.scale_combo_box = QComboBox()
         self.scale_combo_box.setModel(scale_model.scale_model)
-        self.scale_combo_box.currentTextChanged.connect(self.scale_model.currentScaleChanged)
-        self.scale_model.currentScaleUpdated.connect(self._currentScaleModelUpdated)
+        self.scale_combo_box.currentTextChanged.connect(self._scaleUpdated)
         scale_selection_layout.addWidget(self.scale_combo_box)
 
         self.play_button = QPushButton("Play")
@@ -120,6 +118,10 @@ class GScaleSelectionWidget(QGroupBox):
     def _modelUpdated(self, model:GKeyScaleModel):
         self._updateChords()
 
+        current_scale = self.scale_model.currentScale()
+        self.key_combo_box.setCurrentText(current_scale.rootNoteName())
+        self.scale_combo_box.setCurrentText(current_scale.scaleName())
+
 
     def _playEnded(self):
         self.play_button.setDisabled(False)
@@ -138,12 +140,13 @@ class GScaleSelectionWidget(QGroupBox):
         self.scale_model.setShowScale(checkStateToBool(state))
 
 
-    def _currentKeyModelUpated(self, key_index):        
-        self.key_combo_box.setCurrentIndex(key_index)
+    def _keyUpdated(self, key_name):
+        self.scale_model.setCurrentKeyName(key_name)
 
 
-    def _currentScaleModelUpdated(self, scale_index):        
-        self.scale_combo_box.setCurrentIndex(scale_index)
+    def _scaleUpdated(self, scale_name):
+        self.scale_model.setCurrentScaleName(scale_name)
+    
 
 
 

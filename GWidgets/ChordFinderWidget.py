@@ -188,7 +188,7 @@ class GChordFinderWidget(QGroupBox):
 
         current_generator = self.chord_finder.currentGenerator()
 
-        self.source_box.setVisible(current_generator.needSource())
+        self.source_box.setVisible(current_generator.needSeed())
 
         self.setting_panels = [_SettingsPanel(setting) for setting in current_generator.settings()]
 

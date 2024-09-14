@@ -27,7 +27,6 @@ def noteNameStyle(list_of_note_names: list[str]) -> str:
 
     Returns: 'sharp' or 'flat'
     """
-
     if any('b' in name for name in list_of_note_names):
         return "flat"
     else:
@@ -44,7 +43,6 @@ def noteName(note_value: int, style="flat", show_octave=True) -> str:
         show_octave (optional): Indicates if the octave number shall be included in the note name.
     
     """
-
     match style:
         case "sharp":
             note_names_template = _NOTE_NAMES_TEMPLATE_SHARP
@@ -69,7 +67,6 @@ def noteValue(note_name: str) -> int:
         ValueError if the input in not a valic note name.
     
     """
-
     style = noteNameStyle([note_name])
 
     match style:
@@ -99,7 +96,6 @@ def noteToNoteValue(note: str | int) -> int:
     Raises:
         ValueError if the input cannot be decoded to a note value.
     """
-
     if isinstance(note, str):
         return noteValue(note)
     elif isinstance(note, int):
@@ -121,8 +117,8 @@ def NoteNames(start_note: int | str, number_notes, style="flat", show_octave=Tru
         ValueError if incorrect input.
 
     """
-
     startNoteValue = noteToNoteValue(start_note)
+
     for i in range(number_notes):
         yield noteName(i + startNoteValue, style, show_octave)
 
@@ -178,32 +174,27 @@ def noteValuesToNoteNames(note_values: list[int], style="flat", show_octave=Fals
         style (optional): 'sharp' or 'flat'
         show_octave (optional): Indicates if the octave number shall be included in the note name.
     """
-
     return [noteName(note_value, style, show_octave) for note_value in note_values]
 
 
 def noteNamesToNoteValues(note_names: list[str]) -> list[int]:
     """Translates a list of note names to a list of note values."""
-
     return [noteValue(note_name) for note_name in note_names]
 
 
 def removeOctaveFromNoteName(note_name: str):
     """Strips any existing octave number from provided note name."""
-
     remove_digits = str.maketrans('', '', digits)
     return note_name.translate(remove_digits)
 
 
 def isDiatonicNoteName(note_name: str) -> bool:
     """Returns True if the provided note name does not include any 'b' or '#'."""
-
     return ('b' not in note_name) and ('#' not in note_name)
 
 
 def isDiatonicNoteValue(note_value: int) -> bool:
     """Returns True if the provided note value does not represent a note name which includes 'b' or '#'."""
-
     return isDiatonicNoteName(noteName(note_value))
 
 

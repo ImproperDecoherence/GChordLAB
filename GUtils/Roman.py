@@ -21,7 +21,6 @@ def integerToRoman(integer: int, case="upper") -> str:
           roman numerals shall be uppercase or lowercase.
     
     """
-
     roman = str()
 
     for base in reversed(_ROMAN_NUMERALS.keys()):

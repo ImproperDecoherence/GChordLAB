@@ -147,7 +147,7 @@ class GChordPlayerWidget(QGroupBox):
 
 
     def _peroidChanged(self, value: int):                
-        self.piano_model.changePlayPeriod(value)
+        self.piano_model.setPlayPeriod(value)
 
 
     def _chordChanged(self, chord_button: GChordButton):

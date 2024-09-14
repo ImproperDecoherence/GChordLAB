@@ -48,9 +48,7 @@ class GChordModifier:
         Args:
             root: The root note value to be used with 'source'.
             source: The input interval values; note value = root + source value.
-        
         """
-
         removing = [root + i for i in self.to_remove]
         adding   = [root + i for i in self.to_add]
 
@@ -66,19 +64,16 @@ class GChordModifier:
 
     def shortName(self) -> str:
         """Returns the short name of the modifier, e.g. '7'."""
-
         return self.short_name
 
 
     def longName(self) -> str:
         """Returns the long name of the modifier, e.g. 'dominant 7'."""
-
         return self.long_name
 
 
     def appendShortName(self, input: str) -> str:
         """Returns the input string with the short name of the modifier appended."""
-
         return input + self.short_name
     
 
@@ -94,19 +89,16 @@ class GChordModifier:
 
     def cancelsModifiers(self) -> list[int]:
         """Returns a list with the modifiers which shall be candelled by this modifier."""
-
         return self.cancels
 
 
     def __str__(self) -> str:
         """Enables print of GChordModifier."""
-
         return f"GChordModifier({self.self.short_name})"
     
 
     def __repr__(self) -> str:        
         """Enables print of GChordModifier."""
-
         return self.__str__()
 
 
@@ -194,9 +186,7 @@ class GDynamicChordTemplate:
             long_name: The long name of the chord type, e.g. 'minor'.
             short_name: The short name of the chord type, e.g. 'm'.
             intervals: A list of relative interval values which defines the chord type.
-
         """
-
         self.long_name = long_name
         self.short_name = short_name
         self.intervals = intervals
@@ -208,7 +198,6 @@ class GDynamicChordTemplate:
         Args:
             root: The root note value of the chord.
         """
-
         return [n + root for n in self.intervals]
     
 
@@ -256,9 +245,7 @@ class GDynamicChord:
             template: The GDynamicChordTemplate which defines the type of the chord.
             flags (optional): A list of GChordFlags which each represents a chord modifier to be applyed, OR
               an integer with accumulated GChordFlags, e.g. 'GChordFlags.Dominant7 | GChordFlags.Add9'.
-
         """
-
         self.root = noteToNoteValue(root)
         self.template = template        
         self.flags: list[int] = []
@@ -295,7 +282,6 @@ class GDynamicChord:
         Raises:
             ValueError if the chord cannot be created from provided notes.
         """
-
         debugVariable("note_values")
 
         if len(note_values) < 3:
@@ -319,13 +305,11 @@ class GDynamicChord:
 
     def rootNoteValue(self) -> int:
         """Returns the root note value of the chord."""
-
         return self.root
 
 
     def rootNoteName(self, style="flat", show_octave=False) -> str:
         """Returns the root note name of the chord."""
-
         return noteName(self.root, style, show_octave)
     
 
@@ -335,7 +319,6 @@ class GDynamicChord:
         The root note will be in octave 0.
         Selected inversion will be applied (see setInversion).
         """
-
         values = self.template.noteValues(self.root)
 
         # apply modifiers
@@ -353,7 +336,6 @@ class GDynamicChord:
 
     def numberOfNotes(self) -> int:
         """Returns the number of notes of the chord."""
-
         return len(self.noteValues())
     
 
@@ -362,13 +344,11 @@ class GDynamicChord:
         
         A normalized chord will have all note values within octave 0.
         """
-
         return normalizeIntervals(self.noteValues())
     
 
     def signature(self) -> int:
         """Returns an integer which represents an unique signature of the normalized notes of the chord."""
-
         return intervalSignature(self.noteValues())
 
 
@@ -379,7 +359,6 @@ class GDynamicChord:
             style (optional): 'sharp' or 'flat'.
             show_octave (optional): Indicates if the octave numbers shall be a part of the name.
         """
-
         return noteValuesToNoteNames(self.noteValues(), style, show_octave)
 
 
@@ -399,7 +378,6 @@ class GDynamicChord:
 
     def cycleInversion(self):
         """Increases the inversion by one, module number of notes of the chord."""
-
         self.inversion = (self.inversion + 1) % len(self.noteValues())    
 
 
@@ -411,11 +389,10 @@ class GDynamicChord:
 
         Emits:
             chordChanged if the root note was changed.
-        
         """
-
         old_root = self.root
         self.root = noteToNoteValue(root)
+
         if self.root != old_root:
             self.chordChanged.emit(self)
 
@@ -430,7 +407,6 @@ class GDynamicChord:
         Emits:
             chordChanged if the modifiers of the chord is changed.
         """
-
         old_flags = list(self.flags)
         temp_flags = []
 
@@ -455,14 +431,13 @@ class GDynamicChord:
 
     def shortTypeName(self, style="flat") -> str:
         """Returns the short name of the chord without modifiers, i.e. 'C#m' for 'minor'."""
-
         return self.template.shortName(self.root, style)
 
 
     def shortModName(self, style="flat") -> str:
         """Returns the combined short name of the modifiers and inversion, without the root note name and the chord type, e.g. '7add9/G'."""
-
         name = ""
+
         for flag in self.flags:
             name = CHORD_MODIFIERS[flag].appendShortName(name)
 
@@ -475,8 +450,8 @@ class GDynamicChord:
 
     def longName(self, style="flat") -> str:
         """Returns the full long name of the chord including modifiers."""
-
         name = self.template.longName(self.root, style)
+
         for flag in self.flags:
             name = CHORD_MODIFIERS[flag].appendLongName(name)
 
@@ -485,20 +460,17 @@ class GDynamicChord:
 
     def shortName(self, style="flat") -> str:
         """Returns the full short name of the chord including modifiers and inversion."""
-
         return self.shortTypeName(style) + self.shortModName()        
 
 
     def match(self, intervals: set[int]) -> bool:
         """Tests if the normalized input intervals are equal to the normalized intervals of the chord."""
-
         normalized_interval = {v % GToneInterval.Octave for v in intervals}
         return normalized_interval == self.normalizedNoteValues()
 
 
     def contains(self, intervals: set[int]) -> bool:
         """Tests if the normalized input intervals is a subset of the normalized intervals of the chord."""
-
         normalized_interval = {v % GToneInterval.Octave for v in intervals}
         return normalized_interval.issubset(self.normalizedNoteValues())
 
@@ -506,7 +478,6 @@ class GDynamicChord:
     @property
     def centerOfGravity(self) -> float:
         """Returns the average note value of the note values of the chord."""
-
         return sum(self.noteValues()) / self.numberOfNotes()
 
 
@@ -526,19 +497,16 @@ class GDynamicChord:
 
     def __ne__(self, other):
         """Compare operator for GDynamicChord."""
-
         return not self.__eq__(other)
 
 
     def __str__(self):
         """Enables print of GDynamicChord."""
-
         return f"GDynamicChord({self.longName()} | {self.shortName()})"
     
 
     def __repr__(self):
         """Enables print of GDynamicChord."""
-
         return self.__str__()
 
 
@@ -577,7 +545,6 @@ class GChordDatabase:
 
     def _addChord(self, chord: GDynamicChord) -> None:
         """Adds a chord to the database."""
-
         signature = chord.signature()
 
         if signature in self._chord_database:
@@ -590,8 +557,8 @@ class GChordDatabase:
 
     def _size(self) -> int:
         """Returns the number of chords in the database."""
-
         count = 0
+
         for chords in self._chord_database.values():
             count += len(chords)
         return count
@@ -601,14 +568,12 @@ class GChordDatabase:
         """Returns chords found in the database which matches the input intervals.
         
         Args:
-            intervals: The input interval is normalized and is compared with the
+            intervals: The input interval is normalized and it is compared with the
               normalized intervals of the chords in the database.
             distance: The number of notes which shall differ to make a match, e.g.
               distance = 0 returns exact matches, distance = 1 returns chords which
               differs with one note.
-        
         """
-
         chords: list[GDynamicChord] = []
         input_signature = intervalSignature(intervals)        
         signatures_to_seach_for = nearSignatures(input_signature, distance)        

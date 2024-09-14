@@ -16,14 +16,12 @@ _debug_filter = set()
 
 def debugIsOn() -> bool:
     """Tests if debug printing is active."""
-
     global _debug_on
     return _debug_on
 
 
 def debugFilter() -> list[str]:
     """Returns the current debug filter."""
-
     global _debug_filter
     return _debug_filter
 
@@ -37,7 +35,6 @@ def debugOn(on: bool, filter: list[str]) -> None:
           Debug prints which is in the context any of these modules or functions/methods
           will be printed (if 'on' is True), other debug prints will not be printed.
     """
-
     global _debug_on
     global _debug_filter
 
@@ -80,7 +77,6 @@ class _CallerAnalysis:
 
     def callerModuleName(self) -> str:
         """Returns the name of the module in which context this class instance  was created."""
-
         return self.caller_module_name
 
 
@@ -96,15 +92,14 @@ class _CallerAnalysis:
 
     def callerFunctionName(self) -> str:
         """Returns the name of the function in which context this class instance was created."""
-
         return self.caller_function_name
     
 
     def context(self) -> set[str]:
         """Returns a set of class names, module names and fucnction/method names in which this class instance was created."""
-
         class_name = self.callerClassName()
         context = {self.callerModuleName(), self.callerFunctionName()}
+
         if len(class_name) > 0:
             context.update([class_name])
         return context
@@ -115,7 +110,6 @@ class _CallerAnalysis:
         
         The sting has the following format: '<module name>[.<class name>].<method/function name>'
         """
-
         class_str = self.callerClassName()
         module_str = self.callerModuleName() + " | "
 
@@ -128,7 +122,6 @@ class _CallerAnalysis:
 
     def variableValue(self, variable_name: str):
         """Returns the value of the local variables with the name 'variable_name'."""
-
         return self.callerVariables()[variable_name]
 
 
@@ -136,13 +129,11 @@ class _CallerAnalysis:
         """Tests if any of the strings in 'filter' matches the module name, the class name
         or the function/method name in wich context this class instance was created.
         """
-
         return any(self.context() & filter)
 
 
     def __str__(self):
         """Enables printing of instances of this class."""
-
         return [self.context(), self.callerVariables().keys()].__str__()
 
 
