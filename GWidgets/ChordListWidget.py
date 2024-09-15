@@ -1,6 +1,6 @@
 
 """
-Module ChordListWidget
+Module defining a list view for GDynamicChords.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -16,6 +16,7 @@ from GUtils import GSignal
 
 
 class _ChordListWidgetModel(QAbstractListModel):
+        """Data model to be used with the GChordListWidget."""
 
         def __init__(self, chord_finder: GChordFinder):
             super().__init__()
@@ -78,6 +79,7 @@ class GChordListWidget(QListView):
 
 
     def sizeHint(self):
+        """Returns the preferred size of the widget."""
         return QSize(self.WIDTH, 10 * self.model().rowCount(QModelIndex()))
 
 

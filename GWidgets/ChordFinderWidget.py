@@ -1,5 +1,5 @@
 """
-Module ChordFinderWidget
+Module defining a widget for coontrol of different chord generators..
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -21,10 +21,15 @@ from .ChordListWidget import GChordListWidget
 
 
 
-
 class _SettingsPanel(QGroupBox):
+    """A group box widget which is used to select one code generator parameter."""
 
-    def __init__(self, setting: GChordGeneratorSetting, parent: QWidget=None):
+    def __init__(self, setting: GChordGeneratorSetting, parent: QWidget=None) -> None:
+        """
+        Args:
+            setting: The chord generator parameter to be controlled by this widget.
+            parent: Parent widget.
+        """
         super().__init__(setting.name, parent)
         self.setting = setting
         self.setToolTip(setting.toolTip)
@@ -45,8 +50,10 @@ class _SettingsPanel(QGroupBox):
             combo_box.addItems(setting.values)
         
 
-    def _valueChanged(self, new_value: str):
+    def _valueChanged(self, new_value: str) -> None:
+        """This method is called when combo box for the parameter changes current value."""
         debugVariable("new_value")
+
         if not self.setting.hasStringValue():
             value = int(new_value)
         else:
@@ -56,8 +63,15 @@ class _SettingsPanel(QGroupBox):
 
 
 class GChordFinderWidget(QGroupBox):
+    """A widget with chord generator selector, parameter settings and a list view to show the results."""
 
-    def __init__(self, chord_finder: GChordFinder, piano_model: GPianoModel = None, parent: QWidget=None):
+    def __init__(self, chord_finder: GChordFinder, piano_model: GPianoModel = None, parent: QWidget=None) -> None:
+        """
+        Args:
+            chord_finder: The model which holds the states of the chord generators.
+            piano_model: The model to which selected chord can be applied.
+            parent: Parent widget.
+        """
         super().__init__("Chord Finder", parent)
 
         self.chord_finder = chord_finder
@@ -135,42 +149,50 @@ class GChordFinderWidget(QGroupBox):
         self._updateSettingsPanel()
 
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
+        """Returns the preferred size of the widget."""
         return QSize(300, 300)
 
 
-    def enterEvent(self, event: QEnterEvent):        
+    def enterEvent(self, event: QEnterEvent) -> None:
+        """This method is called by the framework when the mouse pointer enters the widget."""
         super().enterEvent(event)
-        self._updateHighlightedChords()        
+        self._updateHighlightedChord()        
         
 
-    def leaveEvent(self, event: QEnterEvent):        
+    def leaveEvent(self, event: QEnterEvent) -> None:
+        """This method is called by the framework when the mouse pointer leaves the widget."""
         super().leaveEvent(event)
         
         if self.piano_model is not None:
             self.piano_model.setHighlightedNoteValues([])
             
 
-    def _currentGeneratorChanged(self, generator_name: str):
+    def _currentGeneratorChanged(self, generator_name: str) -> None:
+        """This method is called when the current item in the combo box for gernerator selection is changed."""
         self.chord_finder.setCurrentGenerator(generator_name)
         self._updateSettingsPanel()
 
 
-    def _sourceToggled(self, button: QRadioButton, checked: bool):
+    def _sourceToggled(self, button: QRadioButton, checked: bool) -> None:
+        """This method is called when the seed source selection is changed."""
         id = self.source_button_group.id(button)
         if checked:
             self.chord_finder.setSeedType(id)
 
 
-    def _seedChordChanged(self, chord_button: GChordButton):
+    def _seedChordChanged(self, chord_button: GChordButton) -> None:
+        """This method is called when the seed chord is changed."""
         self.chord_finder.setSeedChord(chord_button.chord)
         
 
-    def _chordsUpdated(self, finder: GChordFinder):
+    def _chordsUpdated(self, finder: GChordFinder) -> None:
+        """This method is called when the chords found by the chord finder are updated."""
         pass        
 
 
-    def _updateHighlightedChords(self):
+    def _updateHighlightedChord(self) -> None:
+        """Highlights the selected chord in the chord list in the piano model."""
         highlighted_note_values = []
         current_cord = self.chord_list.currentChord()
 
@@ -181,7 +203,8 @@ class GChordFinderWidget(QGroupBox):
             self.piano_model.setHighlightedNoteValues(highlighted_note_values)
 
 
-    def _updateSettingsPanel(self):
+    def _updateSettingsPanel(self) -> None:
+        """Reconstructs the parameter settings panel based in available parameters for the current generator."""
 
         for setting_panel in self.setting_panels:
             self.setting_and_generator_layout.removeWidget(setting_panel)
@@ -196,8 +219,9 @@ class GChordFinderWidget(QGroupBox):
             self.setting_and_generator_layout.addWidget(setting_panel)
 
 
-    def _selectedChordChanged(self, current_chord: GDynamicChord):        
-        self._updateHighlightedChords()
+    def _selectedChordChanged(self, current_chord: GDynamicChord) -> None:
+        """This method is called when the selected chord in the list of found chords is changed."""
+        self._updateHighlightedChord()
         self.piano_model.play(current_chord.noteValues())
 
 

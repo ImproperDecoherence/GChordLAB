@@ -568,7 +568,7 @@ class GChordDatabase:
         """Returns chords found in the database which matches the input intervals.
         
         Args:
-            intervals: The input interval is normalized and it is compared with the
+            intervals: The input intervals are normalized and compared with the
               normalized intervals of the chords in the database.
             distance: The number of notes which shall differ to make a match, e.g.
               distance = 0 returns exact matches, distance = 1 returns chords which
