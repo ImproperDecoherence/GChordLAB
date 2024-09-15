@@ -1,5 +1,5 @@
 """
-Module ScaleSelectionWidget
+This module defines the scale selection widget.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -20,8 +20,19 @@ from GUtils import integerToRoman
 
 
 class GScaleSelectionWidget(QGroupBox):
+    """Widget used for selection of the current key and scale.
+    
+    The widget also shows the basic chords of the selected scale.
+    """
 
-    def __init__(self, scale_model: GKeyScaleModel, piano_model: GPianoModel, parent: QWidget=None):
+    def __init__(self, scale_model: GKeyScaleModel, piano_model: GPianoModel, parent: QWidget=None) -> None:
+        """
+        Args:
+            scale_model: The model which holds the states of current key and scale.
+            piano_model: The instrument model which is used to display the notes and
+              play the selected key and scale.
+            parent (optional): The parent widget.
+        """
         super().__init__("Scale", parent)
 
         self.scale_model = scale_model
@@ -35,15 +46,13 @@ class GScaleSelectionWidget(QGroupBox):
         scale_selection_layout = QHBoxLayout()
 
         self.key_combo_box = QComboBox()
-        self.key_combo_box.setModel(self.scale_model.key_model)
-        self.key_combo_box.currentTextChanged.connect(self.scale_model.currentKeyChanged)
-        self.scale_model.currentKeyUpdated.connect(self._currentKeyModelUpated)
+        self.key_combo_box.setModel(self.scale_model.key_model)        
+        self.key_combo_box.currentTextChanged.connect(self._keyUpdated)        
         scale_selection_layout.addWidget(self.key_combo_box)
 
         self.scale_combo_box = QComboBox()
         self.scale_combo_box.setModel(scale_model.scale_model)
-        self.scale_combo_box.currentTextChanged.connect(self.scale_model.currentScaleChanged)
-        self.scale_model.currentScaleUpdated.connect(self._currentScaleModelUpdated)
+        self.scale_combo_box.currentTextChanged.connect(self._scaleUpdated)
         scale_selection_layout.addWidget(self.scale_combo_box)
 
         self.play_button = QPushButton("Play")
@@ -62,8 +71,8 @@ class GScaleSelectionWidget(QGroupBox):
         main_layout.addLayout(scale_selection_layout)
 
         self.chord_panel = GChordButtonLayout(NUMBER_OF_CHORD_ROWS, NUMBER_OF_CHORD_COLUMNS,
-                                            accept_drops=False, edit_enabled=False,
-                                            piano_model=piano_model, show_labels=True)
+                                              accept_drops=False, edit_enabled=False,
+                                              piano_model=piano_model, show_labels=True)
         for button in self.chord_panel.chordButtons():
             button.setFixedWidth(40)
 
@@ -84,11 +93,13 @@ class GScaleSelectionWidget(QGroupBox):
         self._updateChords()
 
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
+        """Returns the preferred size of the widget."""
         return QSize(100, 100)
 
 
-    def _updateChords(self):
+    def _updateChords(self) -> None:
+        """Updates the basic chords of current key and scale."""
         applicable_chords = enumerate(self.scale_model.currentScale().chordsOfScale())        
         chord_buttons = self.chord_panel.chordButtons()
         chord_labels = self.chord_panel.chordLabels()
@@ -117,15 +128,22 @@ class GScaleSelectionWidget(QGroupBox):
             chord_labels[i].setText(integerToRoman(scale_degree, case) + postfix)
 
 
-    def _modelUpdated(self, model:GKeyScaleModel):
+    def _modelUpdated(self, model:GKeyScaleModel) -> None:
+        """Is called when the state of the scale model is changed."""
         self._updateChords()
 
+        current_scale = self.scale_model.currentScale()
+        self.key_combo_box.setCurrentText(current_scale.rootNoteName())
+        self.scale_combo_box.setCurrentText(current_scale.scaleName())
 
-    def _playEnded(self):
+
+    def _playEnded(self) -> None:
+        """Is called when the playing of the current scale has been completed."""
         self.play_button.setDisabled(False)
 
 
-    def _playScale(self):
+    def _playScale(self) -> None:
+        """Plays the current scale by using the instrument model."""
         self.play_button.setDisabled(True)
 
         scale = self.scale_model.currentScale()
@@ -134,16 +152,20 @@ class GScaleSelectionWidget(QGroupBox):
         self.piano_model.play(appegio_to_play, rebase=True, arpeggio_period=250, arpeggio=GPlayer.ArpeggioType.ForwardBackward)
 
 
-    def _showScaleUpdated(self, state: Qt.CheckState):
+    def _showScaleUpdated(self, state: Qt.CheckState) -> None:
+        """Is called when the check box used for showing/hiding the scale on the instrument changes state."""
         self.scale_model.setShowScale(checkStateToBool(state))
 
 
-    def _currentKeyModelUpated(self, key_index):        
-        self.key_combo_box.setCurrentIndex(key_index)
+    def _keyUpdated(self, key_name) -> None:
+        """Is called when current item of the combo box for key selection is changed."""
+        self.scale_model.setCurrentKeyName(key_name)
 
 
-    def _currentScaleModelUpdated(self, scale_index):        
-        self.scale_combo_box.setCurrentIndex(scale_index)
+    def _scaleUpdated(self, scale_name) -> None:
+        """Is called when current item of the combo box for scale selection is changed."""
+        self.scale_model.setCurrentScaleName(scale_name)
+    
 
 
 

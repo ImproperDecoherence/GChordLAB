@@ -1,5 +1,5 @@
 """
-Module ChordButtonPanel
+Module definings layouts and panels for GChordButtons.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -15,12 +15,23 @@ from GUtils import GSignal, debugVariable
 
 
 class GChordButtonLayout(QGridLayout):
+    """Grid layout for GChordButtons."""
 
     def __init__(self, no_of_rows: int, no_of_columns: int, 
-                 accept_drops=True, edit_enabled=True, 
-                 piano_model: GPianoModel = None,
+                 accept_drops: bool=True, edit_enabled: bool=True, 
+                 piano_model: GPianoModel=None,
                  parent: QWidget=None,
-                 show_labels= False):
+                 show_labels: bool=False) -> None:
+        """
+        Args:
+            no_of_rows: Number of grid layout rows.
+            no_of_columns: Number of grid layout columns.
+            accept_drops (optional): Enables buttons in the layout to acceps drops.
+            edit_enabled (optional): Enables buttons in the layout to be edited.
+            piano_model (optional): Piano model used to play and visualize chords.
+            parent (optional): Parent widget.
+            show_labels (optional): Enables a text label above each button.
+        """
         
         super().__init__(parent)
 
@@ -56,24 +67,33 @@ class GChordButtonLayout(QGridLayout):
             self.addLayout(layout, i // no_of_columns, i % no_of_columns)                
 
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
+        """Returns the preferred size of the widget."""
         button_size_hint = GChordButton().sizeHint()
         return QSize(self.columnCount() * button_size_hint.width() + 20, self.rowCount() * button_size_hint.height() + 20)
 
 
-    def chordLabels(self):
+    def chordLabels(self) -> list[QLabel]:
+        """Returns the lables of all chord buttons."""
         return self.chord_labels
 
 
     def chordButtons(self) -> list[GChordButton]:
+        """Returns all chord buttons."""
         return self.chord_buttons
 
 
     def currentChords(self) -> list[GDynamicChord]:
+        """Returns the current chord of all chord buttons."""
         return [chord_button.chord for chord_button in self.chord_buttons if chord_button.chord is not None]
 
 
     def setChords(self, chord_list: list[GDynamicChord]):
+        """Sets the current chord of the chord buttons, from top left to bottom right.
+        
+        Remaining chord buttons are reset to not contain any chord.
+        """
+
         no_of_chords = len(chord_list)
         debugVariable("chord_list")
 
@@ -86,18 +106,23 @@ class GChordButtonLayout(QGridLayout):
                 chord_button.setChord(None)
 
 
-    def _chordChanged(self, button: GChordButton):        
+    def _chordChanged(self, button: GChordButton):
+        """This method is called when a chord is changed in any of the chord buttons."""
         self.chordChanged.emit(button.chord)
 
 
     def _enterChordButton(self, button: GChordButton):
+        """This method is called when a the mouse enters any of the chord buttons."""
+
         if (button.chord is not None) and (self.piano_model is not None):
             self.piano_model.setHighlightedNoteValues(button.chord.noteValues())
 
         self.chordFocusOn.emit(button.chord)
 
 
-    def _leaveChordButton(self, button: GChordButton):        
+    def _leaveChordButton(self, button: GChordButton):
+        """This method is called when a the mouse leaves any of the chord buttons."""
+
         if (button.chord is not None) and (self.piano_model is not None):
             self.piano_model.setHighlightedNoteValues([])
 
@@ -105,6 +130,8 @@ class GChordButtonLayout(QGridLayout):
 
 
     def _chordButtonClicked(self, button: GChordButton):
+        """This method is called when any of the chord buttons is clicked."""
+
         if (button.chord is not None) and (self.piano_model is not None):
             self.piano_model.play(button.chord.noteValues())
 
@@ -112,6 +139,8 @@ class GChordButtonLayout(QGridLayout):
 
 
     def _chordButtonCtrlClicked(self, button: GChordButton):
+        """This method is called when any of the chord buttons is ctrl-clicked."""
+
         if (button.chord is not None) and (self.piano_model is not None):
             self.piano_model.setSelectedNoteValues(button.chord.noteValues())
 
@@ -120,11 +149,22 @@ class GChordButtonLayout(QGridLayout):
 
 
 class GChordButtonPanel(QGroupBox):
+    """A group box which contains a GChordButtonLayout."""
 
     def __init__(self, title: str, no_of_rows: int, no_of_columns: int, 
-                 accept_drops=True, edit_enabled=True, 
+                 accept_drops:bool =True, edit_enabled: bool=True, 
                  piano_model: GPianoModel = None,
-                 parent: QWidget=None):
+                 parent: QWidget=None) -> None:
+        """
+        Args:
+            title: The title of the group box.
+            no_of_rows: Number of grid layout rows.
+            no_of_columns: Number of grid layout columns.
+            accept_drops (optional): Enables buttons in the layout to acceps drops.
+            edit_enabled (optional): Enables buttons in the layout to be edited.
+            piano_model (optional): Piano model used to play and visualize chords.
+            parent (optional): Parent widget.
+        """
         
         super().__init__(title, parent)
 
@@ -151,21 +191,26 @@ class GChordButtonPanel(QGroupBox):
 
 
     def chordButtons(self) -> list[GChordButton]:
+        """Returns all chord buttons."""
         return self.chord_button_layout.chord_buttons()
 
 
     def chords(self) -> list[GDynamicChord]:
+        """Returns the current chord of all chord buttons."""
         return self.chord_button_layout.currentChords()
 
 
     def rowCount(self):
+        """Returns the number of chord button rows."""
         return self.chord_button_layout.rowCount()
 
 
     def columnCount(self):
+        """Returns the number of chord button columns."""
         return self.chord_button_layout.columnCount()
 
 
     def sizeHint(self):
+        """Returns the preferred size of the widget."""
         return self.chord_button_layout.sizeHint()        
 

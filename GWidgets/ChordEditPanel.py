@@ -1,5 +1,5 @@
 """
-Module ChordEditPanel
+Module defining a widget for editing chords.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import QSizePolicy, QGridLayout, QComboBox, QButtonGroup, Q
 from PyQt6.QtGui import QEnterEvent, QWheelEvent
 from PyQt6.QtCore import QSize
 
-from GModels import GPianoModel, GPlayer, GKeyScaleModel
+from GModels import GPianoModel, GKeyScaleModel
 from .ChordButton import GChordButton
 from GMusicIntervals import (GDynamicChord, GDynamicChordTemplate, GScale, GToneInterval,
                              CHORD_TYPES, CHORD_MODIFIERS, listOfNoteNames)
@@ -17,11 +17,20 @@ from GMusicIntervals import (GDynamicChord, GDynamicChordTemplate, GScale, GTone
 
 
 class GChordEditPanel(QGroupBox):
+    """A widget for editing chords."""
 
-    def __init__(self, title: str, no_of_columns: int, 
+    def __init__(self, title: str, no_of_columns: int,                  
                  piano_model: GPianoModel = None, 
                  scale_model: GKeyScaleModel = None,
-                 parent=None):
+                 parent=None) -> None:
+        """
+        Args:
+            title: The title of the widget's group box.
+            no_of_columns: The number of columns to be used for the chord modifier buttons.
+            piano_model: The piano model to be used for visalizing and playing the chord.
+            scale_model: The scale model providing current key.
+            parent (optional): Parent widget.
+        """
         
         super().__init__(title, parent)
 
@@ -57,7 +66,7 @@ class GChordEditPanel(QGroupBox):
         
         self.flag_button_group = QButtonGroup()
         self.flag_button_group.setExclusive(False)
-        self.flag_button_group.idClicked.connect(self._chordFlagChanged)
+        self.flag_button_group.idClicked.connect(self._chordModifierChanged)
 
         for i, mod_id in enumerate(CHORD_MODIFIERS.keys()):
             modfier = CHORD_MODIFIERS[mod_id]
@@ -78,28 +87,31 @@ class GChordEditPanel(QGroupBox):
 
         self.setLayout(self.grid_layout)
 
-        self.chord_edit_button.setChord(GDynamicChord(self._currentRoot(), self._chechedType(), self._checkedFlags()))
+        self.chord_edit_button.setChord(GDynamicChord(self._currentRoot(), self._checkedChordType(), self._checkedModifierFlags()))
 
 
-    def rowCount(self):
+    def rowCount(self) -> int:
         return self.grid_layout.rowCount()
 
 
-    def columnCount(self):
+    def columnCount(self) -> int:
         return self.grid_layout.columnCount()
 
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
+        """Returns the preferred size of the widget."""
         button_size_hint = GChordButton().sizeHint()
         return QSize(self.columnCount() * button_size_hint.width(), self.rowCount() * button_size_hint.height())
 
 
-    def enterEvent(self, event: QEnterEvent):        
+    def enterEvent(self, event: QEnterEvent) -> None:
+        """This method is called by the framework when the mouse pointer enters the widget."""
         super().enterEvent(event)
-        self._updateHighlightedChords()        
+        self._updateHighlightedChord()        
         
 
-    def leaveEvent(self, event: QEnterEvent):        
+    def leaveEvent(self, event: QEnterEvent) -> None:
+        """This method is called by the framework when the mouse pointer leaves the widget."""
         super().leaveEvent(event)
         
         if self.piano_model is not None:
@@ -109,7 +121,8 @@ class GChordEditPanel(QGroupBox):
                 self.piano_model.showScale(self.scale_model.currentScale(), self.scale_model.showScale())
 
 
-    def wheelEvent(self, event: QWheelEvent):        
+    def wheelEvent(self, event: QWheelEvent) -> None:
+        """This method is called by the framework when a mouse wheel event occurs inside the widget."""
         super().wheelEvent(event)
 
         steps = event.angleDelta().y() // 120
@@ -117,30 +130,36 @@ class GChordEditPanel(QGroupBox):
         self.root_combo_box.setCurrentIndex(next_index)        
         
 
-    def _editChordChanged(self, button: GChordButton):
+    def _editChordChanged(self, button: GChordButton) -> None:
+        """This method is called when the current chord of the chord button is changed."""
         if button.chord is not None:
             self.root_combo_box.setCurrentText(button.chord.rootNoteName())
 
         
-    def _chordEditButtonClicked(self, button: GChordButton):
+    def _chordEditButtonClicked(self, button: GChordButton) -> None:
+        """This method is called when the chord button is clicked."""
         if self.piano_model is not None:
             self.piano_model.play(self.chord_edit_button.chord.noteValues())
 
 
-    def _chordEditButtonCtrlClicked(self, button: GChordButton):
+    def _chordEditButtonCtrlClicked(self, button: GChordButton) -> None:
+        """This method is called when the chord button is ctrl-clicked."""
         if self.piano_model is not None:
             self.piano_model.setSelectedNoteValues(self.chord_edit_button.chord.noteValues())
 
 
-    def _chechedType(self) -> GDynamicChordTemplate:
+    def _checkedChordType(self) -> GDynamicChordTemplate:
+        """Returns the current selection of chord type."""
         return CHORD_TYPES[self.chord_type_button_group.checkedId()]
 
 
-    def _checkedFlags(self) -> list[int]:
+    def _checkedModifierFlags(self) -> list[int]:
+        """Returns the flags for all selected chord modifiers."""
         return [self.flag_button_group.id(button) for button in self.flag_button_group.buttons() if button.isChecked()]
 
 
-    def _updateHighlightedChords(self):
+    def _updateHighlightedChord(self) -> None:
+        """Updates the highlighted notes in the piano model."""
         highlighted_note_values = []
         current_cord = self.chord_edit_button.chord
         current_scale = None
@@ -156,28 +175,34 @@ class GChordEditPanel(QGroupBox):
                 self.piano_model.showScale(current_scale, show=True)
 
 
-    def _updateEditChord(self, play=True):
-        self.chord_edit_button.setChord(GDynamicChord(self._currentRoot(), self._chechedType(), self._checkedFlags()))
+    def _updateEditChord(self, play=True) -> None:
+        """Updates the chord of the chord button according to selected chord type and chord modifiers."""
+        self.chord_edit_button.setChord(GDynamicChord(self._currentRoot(), self._checkedChordType(), self._checkedModifierFlags()))
 
         if play and (self.piano_model is not None):
             self.piano_model.play(self.chord_edit_button.chord.noteValues())
 
-        self._updateHighlightedChords()
+        self._updateHighlightedChord()
 
 
-    def _currentRoot(self):
+    def _currentRoot(self) -> int:
+        """Returns the current note value of the root note combo box."""
         return self.root_combo_box.currentIndex()
 
 
-    def _chordTypeChanged(self, button_id: int):
+    def _chordTypeChanged(self, button_id: int) -> None:
+        """This method is called when the chord type selection is changed."""
         self._updateEditChord()
 
 
-    def _chordFlagChanged(self, button_id: int):
+    def _chordModifierChanged(self, button_id: int) -> None:
+        """This method is called when the chord modifier selection is changed."""
         self._updateEditChord()
 
 
-    def _rootChanged(self, note_name):
+    def _rootChanged(self, note_name) -> None:
+        """This method is called when the current value of the root note combo box is changed."""
+
         for button in self.chord_type_button_group.buttons():            
             chord = CHORD_TYPES[self.chord_type_button_group.id(button)]
             button.setText(chord.shortName(self._currentRoot()))

@@ -1,5 +1,5 @@
 """
-Module IntervalCircleWidget
+Module defineing a widget to be used for visualizing note intervals.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -20,13 +20,28 @@ from PyQt6.QtGui import QColor, QPainter, QPen, QFont, QPaintEvent
 
 
 
-def polarToPoint(center: QPoint, radius, angle) -> QPoint:
+def polarToPoint(center: QPoint, radius: float, angle: float) -> QPoint:
+        """Converts polar coordinates to cartesian coordinates.
+        
+        Args:
+            center: The center point in cartesian coordinates.
+            radius: The radius from the center point.
+            angle: The angle in radians.
+        """
         return QPointF(center.x() + radius * math.sin(angle), center.y() - radius * math.cos(angle))
 
 
 class GIntervalCircleWidget(QWidget):
+    """This widget crates a visual intrepretation of the selected and highlighted note intevals in the piano model."""
 
     def __init__(self, piano_model: GPianoModel, scale_model: GKeyScaleModel, style="flat", parent=None):
+        """
+        Args:
+            piano_model: The piano model which state shall be visualized.
+            scale_model: The scale model provides the current key.
+            style (optional): 'sharp' or 'flat'; the style for writing non-diatonic note names.
+            parent (optional): Parent widget.
+        """
         super().__init__(parent)
 
         self.piano_model = piano_model
@@ -54,23 +69,26 @@ class GIntervalCircleWidget(QWidget):
 
 
     def sizeHint(self):
+        """Returns the preferred size of the widget."""
         return QSize(800, 600)
     
 
     def minimumSizeHint(self) -> QSize:
+        """Returns the minimum size of the widget."""
         return QSize(400, 300)
 
 
     def _paintBackground(self, painter: QPainter):
+        """Paints the background of the widget."""
         painter.fillRect(QRect(0, 0, painter.device().width(), painter.device().height()), QColor('white'))
 
 
     def _paintCircle(self, painter: QPainter, circle_area: QRectF):
+        """Paints the circle around the intervals, including note names and note position marks."""
         
         # Rotate the note names to put the root note at the top of the circle
         current_scale = self.scale_model.currentScale()
         current_root = current_scale.rootNoteName(self.style)
-
         index = self.note_names.index(current_root)
         queue = deque(self.note_names)
         queue.rotate(-index)
@@ -114,6 +132,7 @@ class GIntervalCircleWidget(QWidget):
 
 
     def _paintIntervals(self, painter: QPainter, circle_area: QRectF):
+        """Paints the interval lines."""
 
         selected_intervals = self.piano_model.selectedNoteValues()
         highlighted_intervals = self.piano_model.highlightedNoteValues()
@@ -163,6 +182,7 @@ class GIntervalCircleWidget(QWidget):
 
 
     def _paintLegend(self, painter: QPainter, widget_area: QRectF):
+        """Paints the color ledgend of the widget."""
 
         legend_row_height = widget_area.height() * 0.05
         legend_row_width = legend_row_height * 4
@@ -186,6 +206,7 @@ class GIntervalCircleWidget(QWidget):
 
 
     def paintEvent(self, event: QPaintEvent):
+        """This method is called by the framework when the widget needs to be re-painted."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
@@ -212,15 +233,26 @@ class GIntervalCircleWidget(QWidget):
 
 
     def _pianoModelUpdated(self, key_state: GPianoKeyState):
+        """Triggers a re-paint of this widget when a piano key state has changed."""
         self.update()
 
 
     def _scaleModelUpdated(self, model: GKeyScaleModel):
+        """Triggers a re-paint of this widget when a the current key has changed."""
         self.update()
 
 
 class GIntervalCircleBox(QGroupBox):
+    """A group box which contains a GIntervalCircleWidget."""
+
     def __init__(self, piano_model: GPianoModel, scale_model: GKeyScaleModel, style="flat", parent=None):
+        """
+        Args:
+            piano_model: The piano model which state shall be visualized.
+            scale_model: The scale model provides the current key.
+            style (optional): 'sharp' or 'flat'; the style for writing non-diatonic note names.
+            parent (optional): Parent widget.
+        """
         super().__init__("Interval Circle", parent)
 
         self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
@@ -231,6 +263,7 @@ class GIntervalCircleBox(QGroupBox):
 
 
     def sizeHint(self):
+        """Returns the preferred size of the widget."""
         return self.circle_widget.sizeHint()
 
 

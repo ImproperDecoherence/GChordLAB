@@ -1,5 +1,5 @@
 """
-Module GPianoWidget
+Module defining a piano keyboard widget.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -18,8 +18,14 @@ from PyQt6.QtGui import (QColor, QPainter, QPen, QBrush, QFont, QMouseEvent, QPa
 
 
 class GPianoWidget(QWidget):
+    """A piano widget with piano keys which can be played by clicking on them."""
 
-    def __init__(self, piano_model: GPianoModel, parent=None):
+    def __init__(self, piano_model: GPianoModel, parent=None) -> None:
+        """
+        Args:
+            piano_model: The model which holds the states of the piano keyborad.
+            parent (optional): Parent widget.
+        """
         super().__init__(parent)
 
         self.piano_model = piano_model
@@ -42,18 +48,32 @@ class GPianoWidget(QWidget):
         clear_action.triggered.connect(self._playSelection)
         
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
+        """Returns the preferred size of the widget."""
         hight = 250
         width = len(self.white_key_rects.values()) * 8
         return QSize(width, hight)
     
 
-    def _paintBackground(self, painter: QPainter):
+    def _paintBackground(self, painter: QPainter) -> None:
+        """Paints the background of the widget."""
         painter.fillRect(QRect(0, 0, painter.device().width(), painter.device().height()), QColor('black'))
 
 
     def _paintKey(self, rect: QRect, key_state: GPianoKeyState, painter: QPainter, outline_color: QColor, fill_color: 
-                 QColor, text_color: QColor, corner_radius: float, white_key_width: int):
+                 QColor, text_color: QColor, corner_radius: float, white_key_width: int) -> None:
+        """Paints a single piano key.
+        
+        Args:
+            rect: The boundaries of the piano key.
+            key_state: The state of the piano key.
+            painter: The painter resource to be used.
+            outline_color: The color of the border.
+            fill_color: The fill color of the piano key.
+            text_color: The color to be used for painting the name of the key.
+            corner_radius: The radius of the corners in pixels.
+            white_key_width: The width of the white keys in pixels.
+        """
         
         pen = QPen(outline_color)    
         pen.setStyle(Qt.PenStyle.SolidLine)
@@ -91,14 +111,15 @@ class GPianoWidget(QWidget):
 
         number_rect = QRect(rect)
         number_rect.adjust(0, rect.height() - round(1.50 * white_key_width), 0, 0)
-        painter.drawText(number_rect, Qt.AlignmentFlag.AlignCenter, key_state.key_in_scale_name)
+        painter.drawText(number_rect, Qt.AlignmentFlag.AlignCenter, key_state.keyInScaleName())
 
         name_rect = QRect(rect)
         name_rect.adjust(0, rect.height() - round(0.75 * white_key_width), 0, 0)
         painter.drawText(name_rect, Qt.AlignmentFlag.AlignCenter, key_state.key_name)
 
         
-    def _paintWhiteKey(self, rect: QRect, key_state: GPianoKeyState, painter: QPainter, white_key_width):
+    def _paintWhiteKey(self, rect: QRect, key_state: GPianoKeyState, painter: QPainter, white_key_width) -> None:
+        """Paints a single white piano key."""
         corner_radius=10.0
 
         if key_state.isSelected():
@@ -122,7 +143,8 @@ class GPianoWidget(QWidget):
         self._paintKey(rect, key_state, painter, outline_color, fill_color, text_color, corner_radius, white_key_width)
 
 
-    def _paintBlackKey(self, rect: QRect, key_state: GPianoKeyState, painter: QPainter, white_key_width):
+    def _paintBlackKey(self, rect: QRect, key_state: GPianoKeyState, painter: QPainter, white_key_width) -> None:
+        """Paints a single black piano key."""
         corner_radius = 8.0
 
         if key_state.isSelected():
@@ -146,7 +168,9 @@ class GPianoWidget(QWidget):
         self._paintKey(rect, key_state, painter, outline_color, fill_color, text_color, corner_radius, white_key_width)
 
 
-    def paintEvent(self, event: QPaintEvent):
+    def paintEvent(self, event: QPaintEvent) -> None:
+        """This method is called by the framework when the widget needs to be re-painted."""
+
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
@@ -198,6 +222,7 @@ class GPianoWidget(QWidget):
 
 
     def _findClickedKeyRect(self, position: QPoint, key_rects: dict[int, QRect]) -> int | None:
+        """Returns the note value of the piano key rectangle which contains the provided position."""
         for key_value in key_rects:
             if key_rects[key_value].contains(position):
                 return key_value
@@ -206,11 +231,13 @@ class GPianoWidget(QWidget):
 
 
     def _findClickedNoteValue(self, event: QMouseEvent) -> int | None:
+        """Returns the note value of the piano key which got the mouse event."""
         clicked_pos = event.position().toPoint()
 
         clicked_black_key_value = self._findClickedKeyRect(clicked_pos, self.black_key_rects)
         clicked_white_key_value = self._findClickedKeyRect(clicked_pos, self.white_key_rects)
 
+        # Black keys have priority since they overlap white key rectangles.
         if clicked_black_key_value is not None:
             last_clicked_key_value = clicked_black_key_value
         else:
@@ -220,14 +247,17 @@ class GPianoWidget(QWidget):
 
 
     def _clearSelection(self):
+        """Removes the Selected state from all piano keys."""
         self.piano_model.setSelectedNoteValues([])
 
 
     def _playSelection(self):
+        """Initiates playing of selectes piano keys."""
         self.piano_model.playSelectedNotes()
 
 
-    def mousePressEvent(self, event: QMouseEvent):        
+    def mousePressEvent(self, event: QMouseEvent):
+        """This method is called by the framework when there is a mouse press event insde the widget."""
         self.mouse_press_modifiers = QApplication.keyboardModifiers()
         self.mouse_press_buttons = QApplication.mouseButtons()
 
@@ -235,6 +265,7 @@ class GPianoWidget(QWidget):
 
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        """This method is called by the framework when there is a mouse release event insde the widget."""
         if self.mouse_press_buttons == Qt.MouseButton.LeftButton:
 
             clicked_note_value = self._findClickedNoteValue(event)
@@ -252,24 +283,29 @@ class GPianoWidget(QWidget):
 
         
     def _keyUpdateEvent(self, key_state: GPianoKeyState):
+        """Triggers a re-paint of this widget when a piano key state has changed."""
         self.update()
 
 
     def _keyLayoutChanged(self, piano_model: GPianoModel):
+        """Recreates the piano key rectangles when the layout of the keyboard has been updated."""
         self.black_key_rects = {key.key_value: QRect() for key in self.piano_model.blackKeyStates()}
         self.white_key_rects = {key.key_value: QRect() for key in self.piano_model.whiteKeyStates()}
         self.update()
    
 
     def contextMenuEvent(self, event: QContextMenuEvent | None) -> None:
+        """This method is called by the framework when a context menu is requested (right click)."""
         self.context_menu.exec(event.globalPos())
 
 
     def dragEnterEvent(self, drag: QDragEnterEvent):
+        """This method is called by the framework when a mouse drag event starts."""
         drag.accept()
 
 
     def dropEvent(self, event: QDropEvent | None) -> None:
+        """This method is called by the framework when a drop event occurs."""
         dropped_chord: GDynamicChord = event.source().chord
         debugVariable("dropped_chord")
         if dropped_chord is not None:

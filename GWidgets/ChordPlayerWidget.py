@@ -1,5 +1,5 @@
 """
-Module ChordPlayerWidget
+Module defining a simple widget wich can play a sequence of chords.
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
@@ -16,8 +16,9 @@ from PyQt6.QtCore import QSize, QTimer, Qt
 
 
 class GTempoWidget(QWidget):
+    """Widget used to set player tempo."""
 
-    def __init__(self, parent: QWidget=None):
+    def __init__(self, parent: QWidget=None) -> None:
         super().__init__(parent)
 
         self.MIN_PERIOD        =  100   # ms
@@ -47,34 +48,43 @@ class GTempoWidget(QWidget):
         self.tempo_slider.valueChanged.connect(self._tempoChanged)
         layout.addWidget(self.tempo_slider)
 
-        self.indicator = QLabel(self._valueToString(self.tempo_slider.value()))
+        self.indicator = QLabel(self._tempoValueToString(self.tempo_slider.value()))
         layout.addWidget(self.indicator)
 
         self.setLayout(layout)
 
 
     def currentTempo(self) -> int:
+        """Returns the current tempo; an integer between MIN_TEMPO_VALUE and MAX_TEMPO_VALUE."""
         return self.tempo_slider.value()
     
 
     def currentPeriod(self) -> int:
+        """Returns the current time period between chords in ms."""
         return int(self.P0 + self.K * self.currentTempo())
     
 
-    def _valueToString(self, value) -> str:
+    def _tempoValueToString(self, value: int | float) -> str:
+        """Converts the tempo value to a string for presentation."""
         return f"{value / 100 :.2f}"
 
 
-    def _tempoChanged(self, value: int):
-        self.indicator.setText(self._valueToString(value))
-        self.tempoChanged.emit(value)
+    def _tempoChanged(self, tempo_value: int) -> None:
+        """This method is called when the current value of the tempo slider is changed."""
+        self.indicator.setText(self._tempoValueToString(tempo_value))
+        self.tempoChanged.emit(tempo_value)
         self.periodChanged.emit(self.currentPeriod())
 
 
 
 class GChordPlayerWidget(QGroupBox):
+    """Simple widget wich can play a sequence of chords."""
 
-    def __init__(self, piano_model: GPianoModel, parent: QWidget=None):
+    def __init__(self, piano_model: GPianoModel, parent: QWidget=None) -> None:
+        """
+        Args:
+            piano_model: The piano model which is used to play the chord sequence.
+        """
         super().__init__("Chord Player", parent)
 
         self.piano_model = piano_model
@@ -117,7 +127,8 @@ class GChordPlayerWidget(QGroupBox):
         self.is_playing = False
 
 
-    def _startingPlayingNext(self, note_values, sequence_number):
+    def _startingPlayingNext(self, note_values, sequence_number) -> None:
+        """This method is called when the player is about to play next chord."""
 
         if self.is_playing:
 
@@ -132,7 +143,8 @@ class GChordPlayerWidget(QGroupBox):
                 self.piano_model.setHighlightedNoteValues(note_values)
 
 
-    def _playingEnded(self):
+    def _playingEnded(self) -> None:
+        """This method is called when the player has finished to play all chords in the sequence."""
 
         if self.is_playing:
             chord_buttons = self.chord_panel_layout.chordButtons()        
@@ -146,24 +158,27 @@ class GChordPlayerWidget(QGroupBox):
             self.is_playing = False
 
 
-    def _peroidChanged(self, value: int):                
-        self.piano_model.changePlayPeriod(value)
+    def _peroidChanged(self, value: int) -> None:
+        """This method is called when the value of the tempo slider has changed."""
+        self.piano_model.setPlayPeriod(value)
 
 
-    def _chordChanged(self, chord_button: GChordButton):
+    def _chordChanged(self, chord_button: GChordButton) -> None:
+        """This method is called when a chord is updated in the chords to play panel."""
         at_least_one_chord = any([chord for chord in self.chord_panel_layout.currentChords() if chord is not None])
         self.play_button.setDisabled(not at_least_one_chord)
         self.clear_button.setDisabled(not at_least_one_chord)
 
 
     def sizeHint(self):
+        """Returns the preferred size of the widget."""
         button_size = self.play_button.sizeHint()
         return QSize(self.NUMBER_OF_CHORD_BUTTON_COLUMNS * button_size.width() + 10, 
                      (self.NUMBER_OF_CHORD_BUTTON_ROWS + 1) * button_size.height() + 10)
 
 
     def _playButtonClicked(self):
-
+        """This method is called when the Play button is pressed."""
         last_chord_index = 0
         chord_buttons = self.chord_panel_layout.chordButtons()
 
@@ -187,6 +202,7 @@ class GChordPlayerWidget(QGroupBox):
 
 
     def _clearButtonClicked(self):
+        """This method is called when the Clear button is pressed."""
         for chord_button in self.chord_panel_layout.chordButtons():
             chord_button.setChord(None)
 
