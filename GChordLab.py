@@ -4,7 +4,7 @@ Module GChordLab
 """
 
 __author__ = "https://github.com/ImproperDecoherence"
-__version__ = "0.1"
+__version__ = "alpha.1.1"
 
 
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
@@ -169,7 +169,7 @@ class MainWindow(QMainWindow):
     def __init__(self, application: Application):
         super().__init__() 
 
-        self.setWindowTitle(f"GChordLAB {__version__}")
+        self.setWindowTitle(f"GChordLAB | {__version__}")
         self.app = application
 
         main_layout = MainLayout()
