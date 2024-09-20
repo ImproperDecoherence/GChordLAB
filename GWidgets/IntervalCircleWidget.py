@@ -184,7 +184,7 @@ class GIntervalCircleWidget(QWidget):
     def _paintLegend(self, painter: QPainter, widget_area: QRectF):
         """Paints the color ledgend of the widget."""
 
-        legend_row_height = widget_area.height() * 0.05
+        legend_row_height = widget_area.height() * 0.08
         legend_row_width = legend_row_height * 4
         legend_row_space = widget_area.height() * 0.02
         legend_row_offset = widget_area.width() * 0.03
