@@ -115,6 +115,7 @@ class GPianoPanel(QGroupBox):
     def _currentInstrumentChanged(self, instrument_name):
         """This method is called when the current item in the combo box for selection of instrument is changed."""
         self.player.setInstrument(instrument_name)
+        self.piano_model.setFirstNoteValue(noteValue("C2"))
 
 
     def _playerInstrumentChanged(self, instrument: GPlayer.Instrument):
